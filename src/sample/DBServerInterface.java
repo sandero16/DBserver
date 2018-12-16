@@ -15,4 +15,6 @@ public interface DBServerInterface extends Remote {
 
     boolean sessionTokenValid(String sessionToken) throws RemoteException;
 
+    void updateRanking(String sessionToken,int points) throws RemoteException;
+
 }

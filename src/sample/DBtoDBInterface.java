@@ -9,5 +9,6 @@ public interface DBtoDBInterface extends Remote {
     void insertLoginConsistent(String username, String password) throws RemoteException;
     void insertNewOnlinePlayerConsistent(String username, String sessionToken) throws RemoteException;
     void removeSessionTokenConsistent(String sessionToken) throws RemoteException;
-
+    void updateRankingConsistent(String sessionToken, int score) throws RemoteException;
+    void insertNewRankedPlayerConsistent(String username) throws RemoteException;
 }

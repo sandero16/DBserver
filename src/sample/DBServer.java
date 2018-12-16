@@ -12,6 +12,8 @@ table: logins(username,password)
 create table logins(username text, password text);
 table: onlineplayers(username,sessionToken, timeLogin)
 create table onlinePlayers (username text, sessionToken text, timeLogin integer);
+create table ranking (username text, points integer);
+
  */
 
 

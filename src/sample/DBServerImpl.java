@@ -56,6 +56,37 @@ public class DBServerImpl extends UnicastRemoteObject implements DBServerInterfa
         db2.removeSessionTokenConsistent(sessionToken);
     }
 
+    @Override
+    public void updateRanking(String sessionToken, int points) throws RemoteException{
+        updateRankingHulp(sessionToken, points);
+        db1.updateRankingConsistent(sessionToken, points);
+        db2.updateRankingConsistent(sessionToken, points);
+    }
+
+    public void updateRankingHulp(String sessionToken, int points){
+        Statement stmt = null;
+        try{
+            stmt = conn.createStatement();
+            String query = "SELECT username FROM onlineplayers WHERE sessionToken='" + sessionToken + "';";
+            ResultSet rs = stmt.executeQuery( query );
+            String username ="";
+            if (rs.next() ) {
+                username = rs.getString(1);
+            }
+            rs.close();
+            stmt.close();
+
+            stmt = conn.createStatement();
+            String sql = "UPDATE rankings set points=points+" + points+ " where username="+username+";";
+            stmt.executeUpdate(sql);
+            rs.close();
+            stmt.close();
+        }
+        catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
     public boolean sessionTokenValid(String sessionToken) throws RemoteException{
         long currentTimeMinutes = System.currentTimeMillis()/1000/60;
         boolean sessionTokenValid = false;
@@ -101,8 +132,35 @@ public class DBServerImpl extends UnicastRemoteObject implements DBServerInterfa
         }
         return alreadyHasToken;
     }
+    private void insertNewRankedPlayer(String username){
+        insertNewRankedPlayerHulp(username);
+        try {
+            db1.insertNewRankedPlayerConsistent(username);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        try {
+            db2.insertNewRankedPlayerConsistent(username);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void insertNewRankedPlayerHulp(String username) {
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            long currentMillis = System.currentTimeMillis();
 
+            String query = "INSERT INTO ranking(username,points) " +
+                    "VALUES ('" + username + "','" + 0 + "');";
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
 
 
     private void insertNewLogin(String username, String password){
@@ -141,6 +199,7 @@ public class DBServerImpl extends UnicastRemoteObject implements DBServerInterfa
         }
         if(usernameIsUnique) {
             insertNewLogin(username, password);
+            insertNewRankedPlayer(username);
             try {
                 db1.insertLoginConsistent(username, password);
             } catch (RemoteException e) {
@@ -243,4 +302,14 @@ public class DBServerImpl extends UnicastRemoteObject implements DBServerInterfa
     public void removeSessionTokenConsistent(String sessionToken) throws RemoteException {
         removeSessionToken(sessionToken);
     }
+
+    @Override
+    public void updateRankingConsistent(String sessionToken, int score) throws RemoteException {
+        updateRankingHulp(sessionToken, score);
+    }
+    @Override
+    public void insertNewRankedPlayerConsistent(String username) throws RemoteException{
+        insertNewRankedPlayerHulp(username);
+    }
+
 }
