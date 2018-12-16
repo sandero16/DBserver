@@ -11,8 +11,8 @@ public interface DBServerInterface extends Remote {
 
     String logIn(String username, String password) throws RemoteException;
 
-    void removeFromOnlinePlayers(String sessionToken) throws RemoteException;
+    void logOut(String sessionToken) throws RemoteException;
 
-
+    boolean sessionTokenValid(String sessionToken) throws RemoteException;
 
 }
