@@ -77,7 +77,7 @@ public class DBServerImpl extends UnicastRemoteObject implements DBServerInterfa
             stmt.close();
 
             stmt = conn.createStatement();
-            String sql = "UPDATE rankings set points=points+" + points+ " where username="+username+";";
+            String sql = "UPDATE ranking set points=points+" + points+ " where username='"+username+"';";
             stmt.executeUpdate(sql);
             rs.close();
             stmt.close();
